@@ -87,13 +87,14 @@ async def on_message(message):
       guesses.append([len(guesses), word, score * 100])
     db[guesses_cache_key] = json.dumps(guesses)
 
+    if score * 100 == 100:
+      await message.channel.send('{} got the word: {}'.format(message.author.mention, word))
+
     result_message = None
     for message in await output_channel.history(limit=100).flatten():
       if message.content.startswith(HEADER.format(semantle_date)):
         result_message = message
         break
-
-    
 
     if result_message is None:
       await output_channel.send(generate_message_content(semantle_date, guesses))
