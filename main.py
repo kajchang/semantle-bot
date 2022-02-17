@@ -22,7 +22,7 @@ db = dbm.open('semantle.db', 'c')
 HEADER = '**Semantle #{}**'
 
 def format_guess(guess):
-  return '#{} - **{}** ({} / 1000)'.format(guess[0] + 1, guess[1], round(guess[2]))
+  return '#{} - **{}** ({})'.format(guess[0] + 1, guess[1], round(guess[2], 2))
 
 def generate_message_content(puzzle_number, guesses):
   guesses_by_score = sorted(guesses[:-1], key=lambda x: x[2])
@@ -98,10 +98,10 @@ async def on_message(message):
     else:
       guesses = json.loads(guesses)
     if len(list(filter(lambda x: x[1] == word, guesses))) == 0:
-      guesses.append([len(guesses), word, score * 1000])
+      guesses.append([len(guesses), word, score * 100])
     db[guesses_cache_key] = json.dumps(guesses)
 
-    if score * 1000 == 1000:
+    if score * 100 == 100:
       await message.channel.send('{} got the word: **{}**'.format(message.author.mention, word))
 
     result_message = None
