@@ -12,8 +12,7 @@ load_dotenv()
 
 client = discord.Client()
 
-INPUT_CHANNEL_NAME = 'semantle'
-OUTPUT_CHANNEL_NAME = 'semantle-results'
+CHANNEL_NAME = 'semantle'
 
 db = dbm.open('semantle.db', 'c')
 
@@ -51,8 +50,8 @@ async def on_message(message):
   if message.author == client.user:
     return
 
-  if message.channel.name == INPUT_CHANNEL_NAME:
-    output_channel = discord.utils.get(message.guild.text_channels, name=OUTPUT_CHANNEL_NAME)
+  if message.channel.name == CHANNEL_NAME:
+    output_channel = message.channel
 
     semantle_date = db.get('semantle_date')
     current_utc_date = datetime.utcnow().strftime("%m/%d/%Y")
@@ -76,7 +75,7 @@ async def on_message(message):
           word = message.content
           score = np.dot(data['vec'], semantle_data) / (np.linalg.norm(data['vec']) * np.linalg.norm(semantle_data))
 
-    guesses_cache_key = '{}.guesses'.format(message.guild.id)
+    guesses_cache_key = '{}.{}.guesses'.format(message.guild.id, semantle_date)
     guesses = db.get(guesses_cache_key)
 
     if guesses is None:
@@ -91,14 +90,16 @@ async def on_message(message):
       await message.channel.send('{} got the word: {}'.format(message.author.mention, word))
 
     result_message = None
-    for message in await output_channel.history(limit=100).flatten():
-      if message.content.startswith(HEADER.format(semantle_date)):
-        result_message = message
+    for message_to_check in await output_channel.history(limit=100).flatten():
+      if message_to_check.content.startswith(HEADER.format(semantle_date)):
+        result_message = message_to_check
         break
 
     if result_message is None:
       await output_channel.send(generate_message_content(semantle_date, guesses))
     else:
       await result_message.edit(content=generate_message_content(semantle_date, guesses))
+
+    await message.delete()
 
 client.run(os.getenv('TOKEN'))
