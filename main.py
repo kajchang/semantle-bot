@@ -86,7 +86,7 @@ async def on_message(message):
           data = await response.json()
           semantle_data = json.loads(db.get('semantle_most_vec'))
           word = message.content
-          score = np.dot(data['vec'], semantle_data) / (np.linalg.norm(data['vec']) * np.linalg.norm(semantle_data))
+          score = abs(np.dot(data['vec'], semantle_data) / (np.linalg.norm(data['vec']) * np.linalg.norm(semantle_data)))
         else:
           await message.delete()
 
