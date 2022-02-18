@@ -61,7 +61,7 @@ async def on_message(message):
       semantle_date = int(semantle_date)
 
     now = datetime.utcnow().timestamp()
-    today = math.floor(now / 86400) - 1
+    today = math.floor(now / 86400)
     initial_day = 19021
     puzzle_number = (today - initial_day) % len(secret_words)
 
