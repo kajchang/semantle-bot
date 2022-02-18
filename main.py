@@ -42,7 +42,7 @@ def generate_message_content(puzzle_number, guesses):
     content += guess_content
     content += '\n'
 
-  return content
+  return '\n'.join(reversed(content.splitlines()))
 
 @client.event
 async def on_ready():
@@ -106,7 +106,7 @@ async def on_message(message):
 
     result_message = None
     for message_to_check in await output_channel.history(limit=100).flatten():
-      if message_to_check.content.startswith(HEADER.format(puzzle_number)):
+      if message_to_check.content.endswith(HEADER.format(puzzle_number)):
         result_message = message_to_check
         break
 
